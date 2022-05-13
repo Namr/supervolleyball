@@ -1,11 +1,14 @@
 #pragma once
-#include "entity.hpp"
+#include <string>
 #include <raylib.h>
+
+#include "entity.hpp"
+#include "network.hpp"
 
 class Player : public Entity {
 public:
-  int x, y, radius;
-  Player(int x, int y, int size);
+  int x, y, radius, id;
+  Player(int id, int x, int y, int size);
   void update();
   void render();
   ~Player();
@@ -13,7 +16,7 @@ public:
 
 class ControlledPlayer : public Player {
 public:
-  ControlledPlayer(int x, int y, int size);
+  ControlledPlayer(int id, int x, int y, int size);
   void update();
   void render();
   ~ControlledPlayer();

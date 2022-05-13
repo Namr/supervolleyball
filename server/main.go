@@ -1,9 +1,9 @@
 package main
 
 import (
-  "fmt"
   "log"
   "net/http"
+  "strconv"
   "github.com/gorilla/websocket"
 )
 
@@ -24,7 +24,8 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
     log.Println(err)
   }
 
-  log.Println("New Client Connected")
+  log.Println("New Client Connected, id {}", len(connections))
+  ws.WriteMessage(websocket.TextMessage, []byte(strconv.Itoa(len(connections))))
   connections = append(connections, ws)
   reader(ws)
 }
@@ -38,8 +39,7 @@ func reader(conn *websocket.Conn) {
       log.Println(err)
       return
     }
-    // print out that message for clarity
-    fmt.Println(string(p))
+    //fmt.Println(string(p))
 
     broadcast(string(p))
   }
