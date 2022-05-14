@@ -7,8 +7,9 @@ EMSCRIPTEN_WEBSOCKET_T ws;
 int id = -1;
 const std::regex playerPacketRStr("\\dID:(\\d+)X:(\\d+)Y:(\\d+)R:(\\d+)",
                                   std::regex_constants::ECMAScript);
-const std::regex ballPacketRStr("\\dX:(\\d+)Y:(\\d+)R:(\\d+)",
-                                std::regex_constants::ECMAScript);
+const std::regex
+    ballPacketRStr("\\dX:(\\d+)Y:(\\d+)R:(\\d+)O:(\\d+)EX:(\\d+)EY:(\\d+)",
+                   std::regex_constants::ECMAScript);
 EM_BOOL onopen(int eventType,
                const EmscriptenWebSocketOpenEvent *websocketEvent,
                void *userData) {
@@ -82,7 +83,7 @@ EM_BOOL onmessage(int eventType,
       // parse with regex
       std::cmatch cm;
       std::regex_match((char *)websocketEvent->data, cm, ballPacketRStr);
-      if (cm.size() != 4)
+      if (cm.size() != 7)
         printf("weird packet, only had %lu matches: %s\n", cm.size(),
                (char *)websocketEvent->data);
       else {
@@ -90,11 +91,17 @@ EM_BOOL onmessage(int eventType,
         int x = stoi(cm[1].str());
         int y = stoi(cm[2].str());
         int r = stoi(cm[3].str());
+        int o = stoi(cm[4].str());
+        int ex = stoi(cm[5].str());
+        int ey = stoi(cm[6].str());
 
         if (id != HOST_ID) {
           ball->x = x;
           ball->y = y;
           ball->radius = r;
+          ball->ownerId = o;
+          ball->endX = ex;
+          ball->endY = ey;
         }
         break;
       }

@@ -10,26 +10,26 @@ public:
   void render();
   ~Ball();
 
+  // game constants
+  const int baseRadius = 30;
+  const int returnRadius = 50;
+  const int indicatorRadius = 60;
+  const int loseThreshold = 2;
+  const int timeToTarget = 60;
+
   int x, y, radius;
+  int endX, endY, ownerId;
 };
 
-class HostBall : public Entity {
+class HostBall : public Ball {
 public:
   HostBall();
   void update();
   void render();
   ~HostBall();
 
-  int x, y, radius;
-  const int baseRadius = 30;
-  const float p = 0.2f;
-  const int loseThreshold = 2;
-  const int timeToTarget = 60;
-
 private:
   void switchOwners();
   Player *owner;
-  int ownerId;
-  int passTime;
-  int startX, startY, endX, endY;
+  int passTime, startX, startY;
 };

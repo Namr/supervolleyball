@@ -4,7 +4,13 @@
 
 Ball::Ball() {}
 void Ball::update() {}
-void Ball::render() { DrawCircle(x, y, radius, BLACK); }
+void Ball::render() {
+  DrawCircle(x, y, radius, BLACK);
+  DrawCircleLines(endX, endY, returnRadius, BLACK);
+  DrawPolyLines({(float)players[ownerId]->x, (float)players[ownerId]->y}, 5,
+                indicatorRadius, 0.0f, YELLOW);
+}
+
 Ball::~Ball() {}
 
 int lerp(int a, int b, float t) { return a + (int)(b - a) * t; }
@@ -22,7 +28,7 @@ void HostBall::switchOwners() {
   passTime = 0;
 }
 
-HostBall::HostBall() {
+HostBall::HostBall() : Ball() {
   radius = baseRadius;
   ownerId = 0;
   owner = players[ownerId];
@@ -40,9 +46,11 @@ void HostBall::update() {
   }
 
   network::sendText(std::to_string(BALL_MESSAGE) + "X:" + std::to_string(x) +
-                    "Y:" + std::to_string(y) + "R:" + std::to_string(radius));
+                    "Y:" + std::to_string(y) + "R:" + std::to_string(radius) +
+                    "O:" + std::to_string(ownerId) + "EX:" +
+                    std::to_string(endX) + "EY:" + std::to_string(endY));
 }
 
-void HostBall::render() { DrawCircle(x, y, radius, BLACK); }
+void HostBall::render() { Ball::render(); }
 
 HostBall::~HostBall() {}
