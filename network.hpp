@@ -3,7 +3,12 @@
 #include <emscripten/websocket.h>
 #include <regex>
 #include <string>
+
+#include "ball.hpp"
 #include "game.hpp"
+
+#define PLAYER_MESSAGE 0
+#define BALL_MESSAGE 1
 
 namespace network {
 
@@ -12,11 +17,10 @@ struct playerPacket {
 };
 
 extern int id;
-extern const std::regex packetRStr;
+extern const std::regex playerPacketRStr;
+extern const std::regex ballPacketRStr;
 extern bool ws_established;
 extern EMSCRIPTEN_WEBSOCKET_T ws;
-
-extern struct playerPacket playerPackets[2];
 
 EM_BOOL onopen(int eventType,
                const EmscriptenWebSocketOpenEvent *websocketEvent,

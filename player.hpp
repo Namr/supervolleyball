@@ -1,9 +1,7 @@
 #pragma once
 #include <string>
 #include <raylib.h>
-
 #include "entity.hpp"
-#include "network.hpp"
 
 class Player : public Entity {
 public:
@@ -21,3 +19,4 @@ public:
   void render();
   ~ControlledPlayer();
 };
+

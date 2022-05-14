@@ -5,10 +5,10 @@ namespace network {
 bool ws_established = false;
 EMSCRIPTEN_WEBSOCKET_T ws;
 int id = -1;
-const std::regex packetRStr("ID:(\\d+)X:(\\d+)Y:(\\d+)R:(\\d+)",
-                            std::regex_constants::ECMAScript);
-struct playerPacket playerPackets[2] = {{0, 0, 40}, {0, 0, 0}};
-
+const std::regex playerPacketRStr("\\dID:(\\d+)X:(\\d+)Y:(\\d+)R:(\\d+)",
+                                  std::regex_constants::ECMAScript);
+const std::regex ballPacketRStr("\\dX:(\\d+)Y:(\\d+)R:(\\d+)",
+                                std::regex_constants::ECMAScript);
 EM_BOOL onopen(int eventType,
                const EmscriptenWebSocketOpenEvent *websocketEvent,
                void *userData) {
@@ -51,24 +51,54 @@ EM_BOOL onmessage(int eventType,
   }
 
   if (websocketEvent->isText) {
-    // parse with regex
-    std::cmatch cm;
-    std::regex_match((char *)websocketEvent->data, cm, packetRStr);
-    if (cm.size() != 5)
-      printf("weird packet, only had %lu matches: %s\n", cm.size(),
-             (char *)websocketEvent->data);
-    else {
-      // pump into the correct struct (this is a shit method but whatever)
-      int pid = stoi(cm[1].str());
-      int x = stoi(cm[2].str());
-      int y = stoi(cm[3].str());
-      int r = stoi(cm[4].str());
+    // figure out what type of message it is
+    int messageType = websocketEvent->data[0] - '0';
 
-      if (pid != id) {
-        playerPackets[pid].x = x;
-        playerPackets[pid].y = y;
-        playerPackets[pid].r = r;
+    switch (messageType) {
+    case PLAYER_MESSAGE: {
+      // parse with regex
+      std::cmatch cm;
+      std::regex_match((char *)websocketEvent->data, cm, playerPacketRStr);
+      if (cm.size() != 5)
+        printf("weird packet, only had %lu matches: %s\n", cm.size(),
+               (char *)websocketEvent->data);
+      else {
+        // pump into the correct entity (this is a shit method but whatever)
+        int pid = stoi(cm[1].str());
+        int x = stoi(cm[2].str());
+        int y = stoi(cm[3].str());
+        int r = stoi(cm[4].str());
+
+        if (pid != id) {
+          players[pid]->x = x;
+          players[pid]->y = y;
+          players[pid]->radius = r;
+        }
       }
+      break;
+    }
+
+    case BALL_MESSAGE: {
+      // parse with regex
+      std::cmatch cm;
+      std::regex_match((char *)websocketEvent->data, cm, ballPacketRStr);
+      if (cm.size() != 4)
+        printf("weird packet, only had %lu matches: %s\n", cm.size(),
+               (char *)websocketEvent->data);
+      else {
+        // pump into the correct entity (this is a shit method but whatever)
+        int x = stoi(cm[1].str());
+        int y = stoi(cm[2].str());
+        int r = stoi(cm[3].str());
+
+        if (id != HOST_ID) {
+          ball->x = x;
+          ball->y = y;
+          ball->radius = r;
+        }
+        break;
+      }
+    }
     }
   }
 
